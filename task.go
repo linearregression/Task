@@ -11,7 +11,7 @@ import (
 	"reflect"
 	"runtime"
 	"sync"
-	//	"time"
+	"time"
 )
 
 // Tasks map
@@ -148,9 +148,9 @@ func (t *Task) call(args ...interface{}) error {
 
 // Task runner daemon loop
 func taskRunner() {
+	log.Debugln("worker: Start polling")
 
 	for {
-		log.Debugln("worker: Start polling")
 		resp, err := queue.ReceiveMessage(batchSize)
 		if err != nil {
 			log.Errorln(err)
@@ -161,6 +161,8 @@ func taskRunner() {
 
 		if len(messages) > 0 {
 			run(messages)
+		} else {
+			time.Sleep(time.Millisecond * 500)
 		}
 	}
 
@@ -209,6 +211,7 @@ func handleMessage(m *sqs.Message) error {
 		return errors.New("Unknow task: " + ts.Name)
 	}
 
+	log.Debugln("worker: call:", ts.Name)
 	t.call(ts.Params...)
 
 	_, err := queue.DeleteMessage(m)
