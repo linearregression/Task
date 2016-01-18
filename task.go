@@ -148,6 +148,8 @@ func (t *Task) call(args ...interface{}) error {
 
 // Task runner daemon loop
 func taskRunner() {
+
+	time.Sleep(time.Second * 10)
 	log.Debugln("worker: Start polling")
 
 	for {
